@@ -9,7 +9,7 @@ import type { Movie } from "./types/index.ts";
 const App = () => {
   const [trendingMovies, setTrendingMovies] = useState<Movie[] | null>(null);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
-  const [genres, setGenres] = useState<{ [id: number]: string }>({});
+  const [_genres, setGenres] = useState<{ [id: number]: string }>({});
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(true);
 
