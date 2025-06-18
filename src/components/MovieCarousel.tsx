@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MovieCard from "./MovieCard";
 import type { Movie } from "../types";
 
@@ -13,21 +13,55 @@ const MovieCarousel: React.FC<MovieCarouselProps> = ({
   onMovieSelect,
   selectedMovie,
 }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
   const itemsPerView = 10;
+  const middleIndex = Math.floor(itemsPerView / 2);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Center the selected movie in the carousel
+  const centerSelectedMovie = (movie: Movie) => {
+    const selectedIdx = movies.findIndex((m) => m.id === movie.id);
+    let newIndex = selectedIdx - middleIndex;
+    if (newIndex < 0) newIndex = 0;
+    if (newIndex > movies.length - itemsPerView)
+      newIndex = Math.max(0, movies.length - itemsPerView);
+    setCurrentIndex(newIndex);
+  };
+
+  // When selectedMovie changes, center it
+  useEffect(() => {
+    if (selectedMovie) {
+      centerSelectedMovie(selectedMovie);
+    }
+  }, [selectedMovie, movies]);
+
+  // Auto-select the first movie if none is selected
+  useEffect(() => {
+    if (movies.length > 0 && !selectedMovie) {
+      const firstMovie = movies[0];
+      if (firstMovie) {
+        onMovieSelect(firstMovie);
+      }
+    }
+  }, [movies, selectedMovie, onMovieSelect]);
 
   const handlePrevious = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0
-        ? Math.max(0, movies.length - itemsPerView)
-        : prevIndex - 1
-    );
+    if (!selectedMovie) return;
+    const selectedIdx = movies.findIndex((m) => m.id === selectedMovie.id);
+    const prevIdx = selectedIdx > 0 ? selectedIdx - 1 : movies.length - 1;
+    const prevMovie = movies[prevIdx];
+    if (prevMovie) {
+      onMovieSelect(prevMovie);
+    }
   };
 
   const handleNext = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex >= movies.length - itemsPerView ? 0 : prevIndex + 1
-    );
+    if (!selectedMovie) return;
+    const selectedIdx = movies.findIndex((m) => m.id === selectedMovie.id);
+    const nextIdx = selectedIdx < movies.length - 1 ? selectedIdx + 1 : 0;
+    const nextMovie = movies[nextIdx];
+    if (nextMovie) {
+      onMovieSelect(nextMovie);
+    }
   };
 
   const visibleMovies = movies.slice(currentIndex, currentIndex + itemsPerView);
@@ -48,7 +82,6 @@ const MovieCarousel: React.FC<MovieCarouselProps> = ({
             <MovieCard
               key={movie.id}
               movie={movie}
-              onClick={onMovieSelect}
               isSelected={selectedMovie && selectedMovie.id === movie.id}
             />
           ))}
