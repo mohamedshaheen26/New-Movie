@@ -24,7 +24,7 @@ body::before {
   background: linear-gradient(to right, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0));
   background-size: cover;
   background-position: center;
-  z-index: 2;
+  z-index: 99;
 }
 
 body::after {
